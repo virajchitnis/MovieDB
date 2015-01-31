@@ -16,6 +16,8 @@
     "email": "chitnisviraj@gmail.com"
   },
   "private": true,
+  "port": 3000,
+  "socket_port": 3003,
   "scripts": {
     "start": "node ./bin/www"
   },
