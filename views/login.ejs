@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title><%= title %></title>
+	<title>Login - <%= appName %></title>
 	
 	<!-- Bootstrap css -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
@@ -16,7 +16,7 @@
 <body>
 	<div class="container">
 		<div class="page-header" style="text-align: center">
-		  <h1>MovieDB <small>beta</small></h1>
+		  <h1><%= appName %> <small>beta</small></h1>
 		</div>
 	</div>
 	<div class="container-fluid">
@@ -38,7 +38,7 @@
 								<input type="password" class="form-control" id="password" placeholder="Password">
 							</div>
 							<a class="btn btn-primary" href="#" role="button" style="float: right;">Login</a>
-							<a class="btn btn-success" href="#" role="button" style="float: right; margin-right: 5px;">Signup</a>
+							<a class="btn btn-success" href="#" role="button" style="float: right; margin-right: 5px;" data-toggle="modal" data-target="#signup-modal">Signup</a>
 						</form>
 					</div>
 				</div>
@@ -49,6 +49,47 @@
 	<div class="container">
 		<div class="page-footer" style="text-align: center">
 		  <h5><small>Copyright &copy; 2015 Viraj Chitnis. All Rights Reserved.</small></h5>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="signup-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Signup for <%= appName %></h4>
+				</div>
+				<div class="modal-body">
+					<form>
+						<div class="form-group">
+							<label for="firstName">First name</label>
+							<input type="text" class="form-control" placeholder="Enter first name" ng-model="firstName">
+						</div>
+						<div class="form-group">
+							<label for="lastName">Last name</label>
+							<input type="text" class="form-control" placeholder="Enter last name" ng-model="lastName">
+						</div>
+						<div class="form-group">
+							<label for="email">Email</label>
+							<input type="email" class="form-control" placeholder="Enter email" ng-model="email">
+						</div>
+						<div class="form-group">
+							<label for="password">Password</label>
+							<input type="password" class="form-control" placeholder="Enter password" ng-model="password">
+							<input type="password" class="form-control" placeholder="Repeat password" ng-model="passwordRepeat" style="margin-top: 5px;">
+						</div>
+						<div class="form-group">
+							<label for="accessCode">Access code</label>
+							<input type="text" class="form-control" placeholder="Enter access code" ng-model="accessCode">
+							<p class="help-block">This is a private service, you can only signup if you have received an access code</p>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary">Done</button>
+				</div>
+			</div>
 		</div>
 	</div>
 	
