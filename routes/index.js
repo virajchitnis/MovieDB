@@ -4,7 +4,7 @@ var pjson = require('../package.json');
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  res.render('index', { appName: 'Movies - ' + pjson.name });
+  res.render('index', { appName: pjson.name });
 });
 
 /* GET login page. */
