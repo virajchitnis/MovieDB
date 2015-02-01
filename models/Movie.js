@@ -20,7 +20,7 @@ var MovieSchema = new mongoose.Schema({
 	country: String,
 	awards: String,
 	poster: String,
-	metascore: Number,
+	metascore: String,
 	imdb_rating: String,
 	imdb_votes: String,
 	quality: String,
