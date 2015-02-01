@@ -51,6 +51,9 @@ router.post('/', function(req, res, next) {
 			Movie.findOneAndUpdate({ 'imdb_id': req.body.imdb_id }, req.body, function (err, updated_movie) {
 				if(err){ return next(err); }
 				
+				var socketio = req.app.get('socketio');
+				socketio.sockets.emit('movie.updated', movie);
+				
 				res.json(updated_movie);
 			});
 		}
@@ -58,7 +61,10 @@ router.post('/', function(req, res, next) {
 			var movie = new Movie(req.body);
 			movie.save(function(err, movie) {
 				if(err){ return next(err); }
-
+				
+				var socketio = req.app.get('socketio');
+				socketio.sockets.emit('movie.added', movie);
+				
 				res.json(movie);
 			});
 		}

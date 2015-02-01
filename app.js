@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var pjson = require('./package.json');
 
 // Connection to MongoDB
 var mongoose = require('mongoose');
@@ -15,11 +16,21 @@ mongoose.connect('mongodb://localhost/MovieDB', function(err) {
     }
 });
 
+// Routes setup
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var users = require('./routes/movies');
 
 var app = express();
+
+// Socket.io setup for web sockets
+var http = require('http');
+var socketio = require('socket.io');
+var server = http.createServer(app);
+var io = socketio.listen(server);
+app.set('socketio', io);
+app.set('server', server);
+app.get('server').listen(pjson.socket_port);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
