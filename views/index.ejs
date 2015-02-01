@@ -34,32 +34,32 @@
 			<div class="form-group">
 				<div class="input-group">
 					<div class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></div>
-					<input type="search" class="form-control" id="searchTeams" placeholder="Search movies" ng-model="searchMovies">
+					<input type="search" class="form-control" id="searchMoviesInput" placeholder="Search movies" ng-model="searchMoviesInput" ng-change="searchValueChanged()">
 				</div>
 			</div>
 			<div class="form-group">
-				<select class="form-control" ng-model="searchMovies">
-					<option>Name</option>
-					<option>Genre</option>
-					<option>Runtime</option>
-					<option>Rating</option>
-					<option>Year</option>
-					<option>Actors</option>
-					<option>Director</option>
-					<option>Writer</option>
-					<option>IMDB ID</option>
+				<select class="form-control" ng-model="searchMoviesCriteria" ng-change="searchValueChanged()">
+					<option value="title">Name</option>
+					<option value="genre">Genre</option>
+					<option value="runtime">Runtime</option>
+					<option value="rating">Rating</option>
+					<option value="year">Year</option>
+					<option value="actors">Actors</option>
+					<option value="director">Director</option>
+					<option value="writer">Writer</option>
+					<option value="imdb_id">IMDB ID</option>
 				</select>
 			</div>
 		</form>
 		<hr>
 	</div>
 	<div class="container" style="text-align: center">
-		<div class="panel panel-default" style="display: inline-block; width: 230px; cursor: pointer;" data-toggle="modal" data-target="#details-modal">
+		<div class="panel panel-default" style="display: inline-block; width: 230px; cursor: pointer; margin-left: 5px; margin-right: 5px;" data-toggle="modal" data-target="#details-modal" ng-repeat="movie in movies | filter:searchMovies | orderBy:'title'">
 			<div class="panel-body">
-				<img style="width: 190px; border: 1px solid #aaa; border-radius: 4px;" src=http://ia.media-imdb.com/images/M/MV5BMTQ1MjQwMTE5OF5BMl5BanBnXkFtZTgwNjk3MTcyMDE@._V1_SX300.jpg />
-				<h4>Frozen</h4>
-				<h4><small>2013 &nbsp;|&nbsp; PG &nbsp;|&nbsp; 102 min &nbsp;|&nbsp; <span class="glyphicon glyphicon-hd-video" aria-hidden="true"></span></small></h4>
-				<h5>Animation, Adventure, Comedy</h5>
+				<img style="width: 190px; height: 281px; border: 1px solid #aaa; border-radius: 4px;" src="{{movie.poster}}" />
+				<h4>{{movie.title}}</h4>
+				<h4><small>{{movie.year}} &nbsp;|&nbsp; {{movie.rated}} &nbsp;|&nbsp; {{movie.runtime}}<span ng-if="(movie.quality == '1080p HD') || (movie.quality == '720p HD')"> &nbsp;|&nbsp; <span class="glyphicon glyphicon-hd-video" aria-hidden="true"></span><span></small></h4>
+				<h5>{{movie.genre}}</h5>
 			</div>
 		</div>
 	</div>
@@ -129,6 +129,7 @@
 						</div>
 						<div class="form-group" style="text-align: center;">
 							<a class="btn btn-default" href="#" role="button" ng-click="addMovieToList()">Add to list</a>
+							<a class="btn btn-default" href="#" role="button" ng-click="addAllMoviesToList()">Add all</a>
 							<a class="btn btn-default" href="#" role="button" ng-click="clearMoviesList()">Clear list</a>
 						</div>
 						<div class="form-group">

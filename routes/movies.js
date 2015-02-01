@@ -52,7 +52,7 @@ router.post('/', function(req, res, next) {
 				if(err){ return next(err); }
 				
 				var socketio = req.app.get('socketio');
-				socketio.sockets.emit('movie.updated', movie);
+				socketio.sockets.emit('movies.modified', movie);
 				
 				res.json(updated_movie);
 			});
@@ -63,7 +63,7 @@ router.post('/', function(req, res, next) {
 				if(err){ return next(err); }
 				
 				var socketio = req.app.get('socketio');
-				socketio.sockets.emit('movie.added', movie);
+				socketio.sockets.emit('movies.modified', movie);
 				
 				res.json(movie);
 			});
