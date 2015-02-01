@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ ! -f config.json ]; then
+	echo "Enter your email address (this email address must also be used for your admin account):"
+	read OWNER
+	echo "{\"owner\": \"${OWNER}\"}" > config.json
+fi
