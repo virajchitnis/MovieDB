@@ -5,8 +5,19 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+// Connection to MongoDB
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/MovieDB', function(err) {
+    if(err) {
+        console.log('connection error', err);
+    } else {
+        console.log('connection successful');
+    }
+});
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var users = require('./routes/movies');
 
 var app = express();
 
@@ -24,6 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/movies', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
