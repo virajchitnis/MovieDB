@@ -4,6 +4,18 @@ app.config(['$socketProvider', function ($socketProvider) {
 	$socketProvider.setTryMultipleTransports(false);
 }]);
 app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scope, $http, $sce, $socket) {
+	$(window).scroll(function() {
+		var pageHeaderVisible = $(".page-header").visible();
+		if (!pageHeaderVisible) {
+			$("#backToTopButton").css("display", "block");
+		}
+		else {
+			$("#backToTopButton").css("display", "none");
+		}
+		
+		lazyLoadPosters();
+	});
+	
 	$scope.searchMoviesCriteria = "title";
 	$scope.generatedJSON = "[]";
 	$scope.form_quality = "1080p HD"
@@ -13,10 +25,6 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 	$scope.progressbar_text = "0%";
 	
 	reloadAllMovies();
-	
-	$socket.on('movies.modified', function (data) {
-		reloadAllMovies();
-	});
 	
 	$scope.searchValueChanged = function() {
 		$scope.searchMovies = {};
@@ -43,6 +51,8 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 		$scope.details_country = selectedMovie.country;
 		$scope.details_awards = selectedMovie.awards;
 		$scope.details_imdb_rating = selectedMovie.imdb_rating;
+		
+		$(".details-lazy-load").attr("src", selectedMovie.poster);
 		
 		$('#details-modal').modal('show');
 	};
@@ -178,12 +188,33 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 		}
 		
 		console.log(movies);
+		reloadAllMovies();
 		$('#progress-modal').modal('hide');
+	};
+	
+	$scope.scrollToTop = function() {
+		$('html, body').animate({scrollTop: '0px'}, 1000);
 	};
 	
 	function reloadAllMovies() {
 		$http.get('./movies').success(function(data) {
 			$scope.movies = data;
+			
+			setTimeout( function() {
+				lazyLoadPosters();
+			}, 150);
+		});
+	}
+	
+	function lazyLoadPosters() {
+		$(".lazy-load").each(function() {
+			if ($(this).attr("data-loaded") == "false") {
+				if ($(this).visible(true)) {
+					var posterURL = $(this).attr("data-poster");
+					$(this).attr("src", posterURL);
+					$(this).attr("data-loaded", "true");
+				}
+			}
 		});
 	}
 }]);
