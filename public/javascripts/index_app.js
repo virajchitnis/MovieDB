@@ -23,6 +23,30 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 		$scope.searchMovies[$scope.searchMoviesCriteria] = $scope.searchMoviesInput;
 	};
 	
+	$scope.showDetails = function(id) {
+		var matchingMovies = $.grep($scope.movies, function(e){ return e.imdb_id == id; });
+		var selectedMovie = matchingMovies[0];
+		
+		$scope.details_imdb_id = id;
+		$scope.details_title = selectedMovie.title;
+		$scope.details_year = selectedMovie.year;
+		$scope.details_rated = selectedMovie.rated;
+		$scope.details_runtime = selectedMovie.runtime;
+		$scope.details_poster = selectedMovie.poster;
+		$scope.details_quality = selectedMovie.quality;
+		$scope.details_genre = selectedMovie.genre;
+		$scope.details_released = selectedMovie.released;
+		$scope.details_actors = selectedMovie.actors;
+		$scope.details_director = selectedMovie.director;
+		$scope.details_writer = selectedMovie.writer;
+		$scope.details_plot = selectedMovie.plot;
+		$scope.details_country = selectedMovie.country;
+		$scope.details_awards = selectedMovie.awards;
+		$scope.details_imdb_rating = selectedMovie.imdb_rating;
+		
+		$('#details-modal').modal('show');
+	};
+	
 	$scope.addMovieToList = function() {
 		var newMovie = {
 			imdb_id: $scope.form_imdb_id,

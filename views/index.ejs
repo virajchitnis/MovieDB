@@ -24,12 +24,12 @@
 	<script src="/javascripts/index_app.js"></script>
 </head>
 <body ng-app="app" ng-controller="MainCtrl">
-	<div class="container">
+	<div class="container-fluid">
 		<div class="page-header" style="text-align: center">
 			<h1 data-toggle="modal" data-target="#edit-modal"><%= appName %> <small>beta</small></h1>
 		</div>
 	</div>
-	<div class="container" style="text-align: center">
+	<div class="container-fluid" style="text-align: center">
 		<form class="form-inline">
 			<div class="form-group">
 				<div class="input-group">
@@ -53,8 +53,8 @@
 		</form>
 		<hr>
 	</div>
-	<div class="container" style="text-align: center">
-		<div class="panel panel-default" style="display: inline-block; width: 230px; cursor: pointer; margin-left: 5px; margin-right: 5px;" data-toggle="modal" data-target="#details-modal" ng-repeat="movie in movies | filter:searchMovies | orderBy:'title'">
+	<div class="container-fluid" style="text-align: center">
+		<div class="panel panel-default" style="display: inline-block; width: 230px; cursor: pointer; margin-left: 5px; margin-right: 5px;" ng-repeat="movie in movies | filter:searchMovies | orderBy:'title'" ng-click="showDetails(movie.imdb_id)">
 			<div class="panel-body">
 				<img style="width: 190px; height: 281px; border: 1px solid #aaa; border-radius: 4px;" src="{{movie.poster}}" />
 				<h4>{{movie.title}}</h4>
@@ -63,9 +63,10 @@
 			</div>
 		</div>
 	</div>
-	<div class="container">
+	<div class="container-fluid">
 		<hr>
 		<div class="page-footer" style="text-align: center">
+			<h4><small>{{movies.length}} Movies</small></h4>
 			<h5><small>Copyright &copy; 2015 Viraj Chitnis. All Rights Reserved.</small></h5>
 		</div>
 	</div>
@@ -78,19 +79,19 @@
 					<h4 class="modal-title">Movie details</h4>
 				</div>
 				<div class="modal-body" style="text-align: center;">
-					<img style="width: 190px; border: 1px solid #aaa; border-radius: 4px;" src=http://ia.media-imdb.com/images/M/MV5BMTQ1MjQwMTE5OF5BMl5BanBnXkFtZTgwNjk3MTcyMDE@._V1_SX300.jpg />
-					<h4>Frozen</h4>
-					<h4><small>2013 &nbsp;|&nbsp; PG &nbsp;|&nbsp; 102 min &nbsp;|&nbsp; <span class="glyphicon glyphicon-hd-video" aria-hidden="true"></span></small></h4>
-					<h5><b>Genre:</b> Animation, Adventure, Comedy</h5>
-					<h5><b>Released:</b> 27 Nov 2013</h5>
-					<h5><b>Actors:</b> Kristen Bell, Idina Menzel, Jonathan Groff, Josh Gad</h5>
-					<h5><b>Director:</b> Chris Buck, Jennifer Lee</h5>
-					<h5><b>Writer(s):</b> Jennifer Lee (screenplay), Hans Christian Andersen (inspired by the story "The Snow Queen" by), Chris Buck (story), Jennifer Lee (story), Shane Morris (story), Dean Wellins (additional story)</h5>
-					<h5><b>Plot:</b> Anna, a fearless optimist, sets off on an epic journey - teaming up with rugged mountain man Kristoff and his loyal reindeer Sven - to find her sister Elsa, whose icy powers have trapped the kingdom of Arendelle in eternal winter. Encountering Everest-like conditions, mystical trolls and a hilarious snowman named Olaf, Anna and Kristoff battle the elements in a race to save the kingdom. From the outside Anna's sister, Elsa looks poised, regal and reserved, but in reality, she lives in fear as she wrestles with a mighty secret-she was born with the power to create ice and snow. It's a beautiful ability, but also extremely dangerous. Haunted by the moment her magic nearly killed her younger sister Anna, Elsa has isolated herself, spending every waking minute trying to suppress her growing powers. Her mounting emotions trigger the magic, accidentally setting off an eternal winter that she can't stop. She fears she's becoming a monster and that no one, not even her sister, can help her.</h5>
-					<h5><b>Country:</b> USA</h5>
-					<h5><b>Awards:</b> Won 2 Oscars. Another 68 wins & 53 nominations.</h5>
-					<h5><b>IMDB Rating:</b> 7.7</h5>
-					<h5><b>IMDB ID:</b> tt2294629</h5>
+					<img style="width: 190px; border: 1px solid #aaa; border-radius: 4px;" src="{{details_poster}}" />
+					<h4>{{details_title}}</h4>
+					<h4><small>{{details_year}} &nbsp;|&nbsp; {{details_rated}} &nbsp;|&nbsp; {{details_runtime}}<span ng-if="(details_quality == '1080p HD') || (details_quality == '720p HD')"> &nbsp;|&nbsp; <span class="glyphicon glyphicon-hd-video" aria-hidden="true"></span><span></small></h4>
+					<h5><b>Genre:</b> {{details_genre}}</h5>
+					<h5><b>Released:</b> {{details_released}}</h5>
+					<h5><b>Actors:</b> {{details_actors}}</h5>
+					<h5><b>Director:</b> {{details_director}}</h5>
+					<h5><b>Writer(s):</b> {{details_writer}}</h5>
+					<h5><b>Plot:</b> {{details_plot}}</h5>
+					<h5><b>Country:</b> {{details_country}}</h5>
+					<h5><b>Awards:</b> {{details_awards}}</h5>
+					<h5><b>IMDB Rating:</b> {{details_imdb_rating}}</h5>
+					<h5><b>IMDB ID:</b> {{details_imdb_id}}</h5>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Play</button>
