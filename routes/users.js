@@ -84,7 +84,7 @@ router.post('/code', function(req, res, next) {
 								});
 							}
 							else {
-								returnFailure("Invalid admin password.");
+								returnFailure("Invalid admin credentials.");
 							}
 						});
 					}
@@ -94,7 +94,7 @@ router.post('/code', function(req, res, next) {
 				});
 			}
 			else {
-				returnFailure("Invalid admin email.");
+				returnFailure("Invalid admin credentials.");
 			}
 		}
 		else {
@@ -106,6 +106,27 @@ router.post('/code', function(req, res, next) {
 		var ret = {
 			success: false,
 			message: msg
+		};
+		res.json(ret);
+	}
+});
+
+/* POST check if email is already taken. */
+router.post('/email', function(req, res, next) {
+	User.findOne({ 'email': req.body.email }, function(err, existing_user) {
+		if(err){ return next(err); }
+		
+		if (!existing_user) {
+			returnJSON(true);
+		}
+		else {
+			returnJSON(false);
+		}
+	});
+	
+	function returnJSON(status) {
+		var ret = {
+			available: status
 		};
 		res.json(ret);
 	}
