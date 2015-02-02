@@ -12,8 +12,18 @@
 	<link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
 	
 	<link rel='stylesheet' href='/stylesheets/style.css' />
+	
+	<!-- AngularJS -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.min.js"></script>
+	
+	<!-- Socket.io client -->
+	<script src="https://cdn.socket.io/socket.io-1.3.2.js"></script>
+	
+	<!-- App logic controller -->
+	<script src="/javascripts/angular-socket.js"></script>
+	<script src="/javascripts/login_app.js"></script>
 </head>
-<body>
+<body ng-app="app" ng-controller="MainCtrl">
 	<div class="container">
 		<div class="page-header" style="text-align: center">
 		  <h1><%= appName %> <small>beta</small></h1>
@@ -62,26 +72,38 @@
 				</div>
 				<div class="modal-body">
 					<form>
-						<div class="form-group">
-							<label for="firstName">First name</label>
-							<input type="text" class="form-control" placeholder="Enter first name" ng-model="firstName">
+						<div class="form-group has-feedback" ng-class="firstNameCSSClasses">
+							<label for="firstName">First name *</label>
+							<input type="text" class="form-control" placeholder="Enter first name" ng-model="firstName" ng-change="validateFirstName()">
+							<span class="glyphicon form-control-feedback" aria-hidden="true" ng-class="firstNameGlyphicon"></span>
 						</div>
-						<div class="form-group">
-							<label for="lastName">Last name</label>
-							<input type="text" class="form-control" placeholder="Enter last name" ng-model="lastName">
+						<div class="form-group has-feedback" ng-class="lastNameCSSClasses">
+							<label for="lastName">Last name *</label>
+							<input type="text" class="form-control" placeholder="Enter last name" ng-model="lastName" ng-change="validateLastName()">
+							<span class="glyphicon form-control-feedback" aria-hidden="true" ng-class="lastNameGlyphicon"></span>
 						</div>
-						<div class="form-group">
-							<label for="email">Email</label>
-							<input type="email" class="form-control" placeholder="Enter email" ng-model="email">
+						<div class="form-group has-feedback" ng-class="emailCSSClasses">
+							<label for="email">Email *</label>
+							<input type="email" class="form-control" placeholder="Enter email" ng-model="email" ng-change="emailChanged()">
+							<span class="glyphicon form-control-feedback" aria-hidden="true" ng-class="emailGlyphicon"></span>
+							<p class="help-block" ng-if="!emailAvailable">The entered email is already taken, please enter another.</p>
 						</div>
-						<div class="form-group">
-							<label for="password">Password</label>
-							<input type="password" class="form-control" placeholder="Enter password" ng-model="password">
-							<input type="password" class="form-control" placeholder="Repeat password" ng-model="passwordRepeat" style="margin-top: 5px;">
+						<div class="form-group has-feedback" ng-class="passwordCSSClasses">
+							<label for="password">Password *</label>
+							<input type="password" class="form-control" placeholder="Enter password" ng-model="password" ng-change="validatePassword()">
+							<span class="glyphicon form-control-feedback" aria-hidden="true" ng-class="passwordGlyphicon"></span>
+							<p class="help-block">The password must be at least 8 characters long, must have at least one of each, a number, an upper case letter and a lower case letter</p>
 						</div>
-						<div class="form-group">
-							<label for="accessCode">Access code</label>
-							<input type="text" class="form-control" placeholder="Enter access code" ng-model="accessCode">
+						<div class="form-group has-feedback" ng-class="passwordRepeatCSSClasses">
+							<label for="passwordRepeat">Repeat password *</label>
+							<input type="password" class="form-control" placeholder="Repeat password" ng-model="passwordRepeat" ng-change="validatePasswordRepeat()">
+							<span class="glyphicon form-control-feedback" aria-hidden="true" ng-class="passwordRepeatGlyphicon"></span>
+							<p class="help-block" ng-if="!passwordsMatch">Passwords do not match</p>
+						</div>
+						<div class="form-group has-feedback" ng-class="accessCodeCSSClasses">
+							<label for="accessCode">Access code *</label>
+							<input type="text" class="form-control" placeholder="Enter access code" ng-model="accessCode" ng-change="validateAccessCode()">
+							<span class="glyphicon form-control-feedback" aria-hidden="true" ng-class="accessCodeGlyphicon"></span>
 							<p class="help-block">This is a private service, you can only signup if you have received an access code</p>
 						</div>
 					</form>
