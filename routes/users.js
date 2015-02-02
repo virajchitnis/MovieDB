@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var Movie = require('../models/Movie.js');
 var User = require('../models/User.js');
 var AccessCode = require('../models/AccessCode.js');
+var Login = require('../models/Login.js');
 
 /* POST add a new user. */
 router.post('/', function(req, res, next) {
@@ -127,6 +128,52 @@ router.post('/email', function(req, res, next) {
 	function returnJSON(status) {
 		var ret = {
 			available: status
+		};
+		res.json(ret);
+	}
+});
+
+/* POST check if email and password are correct and allow (or prevent) user login. */
+router.post('/login', function(req, res, next) {
+	User.findOne({ 'email': req.body.email }, function(err, user) {
+		if(err){ return next(err); }
+		
+		if (user) {
+			user.comparePassword(req.body.password, function(err, isMatch) {
+				if(err){ return next(err); }
+					
+				if (isMatch) {
+					var received_data = {
+						email: req.body.email,
+						user_agent: req.body.user_agent
+					};
+		
+					var login = new Login(received_data);
+					login.save(function(err, login) {
+						if(err){ return next(err); }
+						
+						var ret = {
+							success: true,
+							token: login._id
+						}
+
+						res.json(ret);
+					});
+				}
+				else {
+					returnFailure("Invalid email or password, please try again.");
+				}
+			});
+		}
+		else {
+			returnFailure("Invalid email or password, please try again.");
+		}
+	});
+	
+	function returnFailure(msg) {
+		var ret = {
+			success: false,
+			message: msg
 		};
 		res.json(ret);
 	}
