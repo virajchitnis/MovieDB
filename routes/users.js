@@ -10,78 +10,102 @@ var AccessCode = require('../models/AccessCode.js');
 
 /* POST add a new user. */
 router.post('/', function(req, res, next) {
-	AccessCode.findOne({ 'email': req.body.email }, function(err, access_code) {
+	User.findOne({ 'email': req.body.email }, function(err, existing_user) {
 		if(err){ return next(err); }
-		if (access_code && (access_code._id == req.body.access_code)) {
-			var user = new User(req.body);
-			
-			if (access_code.account_type == "admin") {
-				user.type = "admin";
-			}
-			
-			user.save(function(err, user) {
+		
+		if (!existing_user) {
+			AccessCode.findOne({ 'email': req.body.email }, function(err, access_code) {
 				if(err){ return next(err); }
+				if (access_code && (access_code._id == req.body.access_code)) {
+					var user = new User(req.body);
+			
+					if (access_code.account_type == "admin") {
+						user.type = "admin";
+					}
+					else {
+						user.type = "user";
+					}
+			
+					user.save(function(err, user) {
+						if(err){ return next(err); }
 				
-				var ret = {
-					email: user.email,
-					success: true
-				};
+						var ret = {
+							email: user.email,
+							success: true
+						};
 				
-				res.json(ret);
+						res.json(ret);
+					});
+				}
+				else {
+					returnFailure("Invalid access code.");
+				}
 			});
 		}
 		else {
-			var ret = {
-				success: false
-			};
-			res.json(ret);
+			returnFailure("Account with selected email exists.");
 		}
 	});
+	
+	function returnFailure(msg) {
+		var ret = {
+			success: false,
+			message: msg
+		};
+		res.json(ret);
+	}
 });
 
 /* POST add a new access code. */
 router.post('/code', function(req, res, next) {
-	var owner_email = cfg.owner;
-	if (req.body.owner == owner_email) {
-		User.findOne({ 'email': req.body.owner }, function(err, owner) {
-			if(err){ return next(err); }
-			
-			if (owner) {
-				owner.comparePassword(req.body.password, function(err, isMatch) {
+	AccessCode.findOne({ 'email': req.body.email }, function(err, existing_accesscode) {
+		if(err){ return next(err); }
+		if (!existing_accesscode) {
+			var owner_email = cfg.owner;
+			if (req.body.owner == owner_email) {
+				User.findOne({ 'email': req.body.owner }, function(err, owner) {
 					if(err){ return next(err); }
-					
-					if (isMatch) {
-						var access_code = {
-							email: req.body.email,
-							account_type: req.body.type
-						};
-		
-						var accesscode = new AccessCode(access_code);
-						accesscode.save(function(err, accesscode) {
+			
+					if (owner) {
+						owner.comparePassword(req.body.password, function(err, isMatch) {
 							if(err){ return next(err); }
+					
+							if (isMatch) {
+								var access_code = {
+									email: req.body.email,
+									account_type: req.body.type
+								};
+		
+								var accesscode = new AccessCode(access_code);
+								accesscode.save(function(err, accesscode) {
+									if(err){ return next(err); }
 
-							res.json(accesscode);
+									res.json(accesscode);
+								});
+							}
+							else {
+								returnFailure("Invalid admin password.");
+							}
 						});
 					}
 					else {
-						var ret = {
-							success: false
-						};
-						res.json(ret);
+						returnFailure("Admin account does not exist.");
 					}
 				});
 			}
 			else {
-				var ret = {
-					success: false
-				};
-				res.json(ret);
+				returnFailure("Invalid admin email.");
 			}
-		});
-	}
-	else {
+		}
+		else {
+			returnFailure("Access code already exists for this email.");
+		}
+	});
+	
+	function returnFailure(msg) {
 		var ret = {
-			success: false
+			success: false,
+			message: msg
 		};
 		res.json(ret);
 	}
