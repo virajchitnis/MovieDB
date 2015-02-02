@@ -18,25 +18,18 @@ router.post('/', function(req, res, next) {
 			AccessCode.findOne({ 'email': req.body.email }, function(err, access_code) {
 				if(err){ return next(err); }
 				if (access_code && (access_code._id == req.body.access_code)) {
-					var user = new User(req.body);
-			
-					if (access_code.account_type == "admin") {
-						user.type = "admin";
+					if (access_code.expires) {
+						var current_date = new Date();
+						if (current_date > access_code.expires) {
+							returnFailure("Your access code has expired.");
+						}
+						else {
+							returnSuccess(access_code);
+						}
 					}
 					else {
-						user.type = "user";
+						returnSuccess(access_code);
 					}
-			
-					user.save(function(err, user) {
-						if(err){ return next(err); }
-				
-						var ret = {
-							email: user.email,
-							success: true
-						};
-				
-						res.json(ret);
-					});
 				}
 				else {
 					returnFailure("Invalid access code.");
@@ -47,6 +40,28 @@ router.post('/', function(req, res, next) {
 			returnFailure("Account with selected email exists.");
 		}
 	});
+	
+	function returnSuccess(access_code) {
+		var user = new User(req.body);
+
+		if (access_code.account_type == "admin") {
+			user.type = "admin";
+		}
+		else {
+			user.type = "user";
+		}
+
+		user.save(function(err, user) {
+			if(err){ return next(err); }
+	
+			var ret = {
+				email: user.email,
+				success: true
+			};
+	
+			res.json(ret);
+		});
+	}
 	
 	function returnFailure(msg) {
 		var ret = {
@@ -72,17 +87,7 @@ router.post('/code', function(req, res, next) {
 							if(err){ return next(err); }
 					
 							if (isMatch) {
-								var access_code = {
-									email: req.body.email,
-									account_type: req.body.type
-								};
-		
-								var accesscode = new AccessCode(access_code);
-								accesscode.save(function(err, accesscode) {
-									if(err){ return next(err); }
-
-									res.json(accesscode);
-								});
+								returnSuccess();
 							}
 							else {
 								returnFailure("Invalid admin credentials.");
@@ -90,7 +95,7 @@ router.post('/code', function(req, res, next) {
 						});
 					}
 					else {
-						returnFailure("Admin account does not exist.");
+						returnSuccess("There is no admin account, please create one as soon as possible.");
 					}
 				});
 			}
@@ -102,6 +107,28 @@ router.post('/code', function(req, res, next) {
 			returnFailure("Access code already exists for this email.");
 		}
 	});
+	
+	function returnSuccess(message) {
+		var access_code = {
+			email: req.body.email,
+			account_type: req.body.type
+		};
+		
+		if (req.body.expires) {
+			access_code.expires = req.body.expires;
+		}
+		
+		if (message) {
+			access_code.message = message;
+		}
+
+		var accesscode = new AccessCode(access_code);
+		accesscode.save(function(err, accesscode) {
+			if(err){ return next(err); }
+
+			res.json(accesscode);
+		});
+	}
 	
 	function returnFailure(msg) {
 		var ret = {
@@ -135,40 +162,63 @@ router.post('/email', function(req, res, next) {
 
 /* POST check if email and password are correct and allow (or prevent) user login. */
 router.post('/login', function(req, res, next) {
-	User.findOne({ 'email': req.body.email }, function(err, user) {
+	AccessCode.findOne({ 'email': req.body.email }, function(err, accesscode) {
 		if(err){ return next(err); }
-		
-		if (user) {
-			user.comparePassword(req.body.password, function(err, isMatch) {
-				if(err){ return next(err); }
-					
-				if (isMatch) {
-					var received_data = {
-						email: req.body.email,
-						user_agent: req.body.user_agent
-					};
-		
-					var login = new Login(received_data);
-					login.save(function(err, login) {
-						if(err){ return next(err); }
-						
-						var ret = {
-							success: true,
-							token: login._id
-						}
-
-						res.json(ret);
-					});
+		if (accesscode) {
+			if (accesscode.expires) {
+				var current_date = new Date();
+				if (current_date > accesscode.expires) {
+					returnFailure("Your access code has expired.");
 				}
 				else {
-					returnFailure("Invalid email or password, please try again.");
+					loginSuccess();
 				}
-			});
+			}
+			else {
+				loginSuccess();
+			}
 		}
 		else {
 			returnFailure("Invalid email or password, please try again.");
 		}
 	});
+	
+	function loginSuccess() {
+		User.findOne({ 'email': req.body.email }, function(err, user) {
+			if(err){ return next(err); }
+		
+			if (user) {
+				user.comparePassword(req.body.password, function(err, isMatch) {
+					if(err){ return next(err); }
+					
+					if (isMatch) {
+						var received_data = {
+							email: req.body.email,
+							user_agent: req.body.user_agent
+						};
+		
+						var login = new Login(received_data);
+						login.save(function(err, login) {
+							if(err){ return next(err); }
+						
+							var ret = {
+								success: true,
+								token: login._id
+							}
+
+							res.json(ret);
+						});
+					}
+					else {
+						returnFailure("Invalid email or password, please try again.");
+					}
+				});
+			}
+			else {
+				returnFailure("Invalid email or password, please try again.");
+			}
+		});
+	}
 	
 	function returnFailure(msg) {
 		var ret = {

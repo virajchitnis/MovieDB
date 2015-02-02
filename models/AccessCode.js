@@ -10,7 +10,8 @@ var AccessCodeSchema = new mongoose.Schema({
 	account_type: {
 		type: String,
 		required: true
-	}
+	},
+	expires: Date
 });
 
 module.exports = mongoose.model('AccessCode', AccessCodeSchema);
