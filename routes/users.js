@@ -11,35 +11,52 @@ var Login = require('../models/Login.js');
 
 /* POST add a new user. */
 router.post('/', function(req, res, next) {
-	User.findOne({ 'email': req.body.email }, function(err, existing_user) {
-		if(err){ return next(err); }
+	if (validateEmail(req.body.email) && validatePassword(req.body.password) && (req.body.first_name.length >= 2) && (req.body.last_name.length >= 2) && (req.body.access_code.length >= 10)) {
+		User.findOne({ 'email': req.body.email }, function(err, existing_user) {
+			if(err){ return next(err); }
 		
-		if (!existing_user) {
-			AccessCode.findOne({ 'email': req.body.email }, function(err, access_code) {
-				if(err){ return next(err); }
-				if (access_code && (access_code._id == req.body.access_code)) {
-					if (access_code.expires) {
-						var current_date = new Date();
-						if (current_date > access_code.expires) {
-							returnFailure("Your access code has expired.");
+			if (!existing_user) {
+				AccessCode.findOne({ 'email': req.body.email }, function(err, access_code) {
+					if(err){ return next(err); }
+					if (access_code && (access_code._id == req.body.access_code)) {
+						if (access_code.expires) {
+							var current_date = new Date();
+							if (current_date > access_code.expires) {
+								returnFailure("Your access code has expired.");
+							}
+							else {
+								returnSuccess(access_code);
+							}
 						}
 						else {
 							returnSuccess(access_code);
 						}
 					}
 					else {
-						returnSuccess(access_code);
+						returnFailure("Invalid access code.");
 					}
-				}
-				else {
-					returnFailure("Invalid access code.");
-				}
-			});
-		}
-		else {
-			returnFailure("Account with selected email exists.");
-		}
-	});
+				});
+			}
+			else {
+				returnFailure("Account with selected email exists.");
+			}
+		});
+	}
+	else {
+		returnFailure("Please fill out all the fields in the form and make sure they are check marked.");
+	}
+	
+	function validateEmail(email) {
+		var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(email);
+	}
+	
+	function validatePassword(str) {
+		// at least one number, one lowercase and one uppercase letter
+		// at least six characters
+		var re = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
+		return re.test(str);
+	}
 	
 	function returnSuccess(access_code) {
 		var user = new User(req.body);
