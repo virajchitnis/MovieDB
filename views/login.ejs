@@ -41,13 +41,13 @@
 						<form>
 							<div class="form-group">
 								<label for="email">Email</label>
-								<input type="email" class="form-control" id="email" placeholder="Enter email">
+								<input type="email" class="form-control" id="email" placeholder="Enter email" ng-model="loginEmail">
 							</div>
 							<div class="form-group">
 								<label for="password">Password</label>
-								<input type="password" class="form-control" id="password" placeholder="Password">
+								<input type="password" class="form-control" id="password" placeholder="Password" ng-model="loginPassword">
 							</div>
-							<a class="btn btn-primary" href="#" role="button" style="float: right;">Login</a>
+							<a class="btn btn-primary" href="#" role="button" style="float: right;" ng-click="userLogin()">Login</a>
 							<a class="btn btn-success" href="#" role="button" style="float: right; margin-right: 5px;" data-toggle="modal" data-target="#signup-modal">Signup</a>
 						</form>
 					</div>
@@ -110,7 +110,23 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-					<button type="button" class="btn btn-primary">Done</button>
+					<button type="button" class="btn btn-primary" ng-click="submitNewUser()">Done</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="login-progress-modal">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">{{responseTitle}}</h4>
+				</div>
+				<div class="modal-body">
+					<p>{{responseMessage}}</p>
+				</div>
+				<div class="modal-footer" ng-if="responseMessageClosable">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				</div>
 			</div>
 		</div>
