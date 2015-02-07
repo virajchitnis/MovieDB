@@ -57,7 +57,47 @@ router.get('/', function(req, res) {
 
 /* GET login page. */
 router.get('/login', function(req, res) {
-	res.render('login', { appName: pjson.name });
+	if (req.cookies.token) {
+		Login.findById(req.cookies.token, function (err, login) {
+			if (err) return next(err);
+			
+			if (login) {
+				AccessCode.findOne({ 'email': login.email }, function(err, accesscode) {
+					if (accesscode) {
+						if (accesscode.expires) {
+							var current_date = new Date();
+							if (current_date > accesscode.expires) {
+								returnLoginPage();
+							}
+							else {
+								returnIndexPage();
+							}
+						}
+						else {
+							returnIndexPage();
+						}
+					}
+					else {
+						returnLoginPage();
+					}
+				});
+			}
+			else {
+				returnLoginPage();
+			}
+		});
+	}
+	else {
+		returnLoginPage();
+	}
+	
+	function returnIndexPage() {
+		res.send("<script type='text/javascript'>window.location.replace('/');</script>");
+	}
+	
+	function returnLoginPage() {
+		res.render('login', { appName: pjson.name });
+	}
 });
 
 module.exports = router;
