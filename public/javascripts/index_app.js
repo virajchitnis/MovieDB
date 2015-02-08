@@ -85,6 +85,10 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 		}
 		movies.push(newMovie);
 		$scope.generatedJSON = JSON.stringify(movies);
+		
+		$scope.form_imdb_id = "";
+		$scope.form_quality = "1080p HD";
+		$scope.form_filename = "";
 	};
 	
 	$scope.addAllMoviesToList = function() {
@@ -106,9 +110,9 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 	};
 	
 	$scope.addMoviesToDB = function () {
-		var movies = new Array();
+		$scope.newMovies = new Array();
 		if ($scope.generatedJSON != "") {
-			movies = JSON.parse($scope.generatedJSON);
+			$scope.newMovies = JSON.parse($scope.generatedJSON);
 		}
 		
 		$('#edit-modal').modal('hide');
@@ -118,24 +122,13 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 			show: true
 		});
 		
-		for (var i = 0; i < movies.length; i++) {
-			$scope.current_movie = movies[i];
-			
-			jQuery.ajax({
-				url: 'http://www.omdbapi.com/?i=' + $scope.current_movie.imdb_id + '&plot=full',
-				type: 'GET',
-				async: false,
-				success: function(result) {
-					var omdb_movie = JSON.parse(result);
-					var moviedb_movie = {
-						imdb_id: $scope.current_movie.imdb_id,
-						quality: $scope.current_movie.quality,
-						filename: $scope.current_movie.filename
-					};
-					
+		for (var i = 0; i < $scope.newMovies.length; i++) {
+			$http.get('http://www.omdbapi.com/?i=' + $scope.newMovies[i].imdb_id + '&plot=full').success((function(i) {
+				return function(data) {
+					var omdb_movie = data;
 					if (omdb_movie.Response == "True") {
-						moviedb_movie = {
-							imdb_id: $scope.current_movie.imdb_id,
+						var moviedb_movie = {
+							imdb_id: $scope.newMovies[i].imdb_id,
 							title: omdb_movie.Title,
 							year: omdb_movie.Year,
 							rated: omdb_movie.Rated,
@@ -153,41 +146,37 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 							metascore: omdb_movie.Metascore,
 							imdb_rating: omdb_movie.imdbRating,
 							imdb_votes: omdb_movie.imdbVotes,
-							quality: $scope.current_movie.quality,
-							filename: $scope.current_movie.filename
+							quality: $scope.newMovies[i].quality,
+							filename: $scope.newMovies[i].filename
 						};
-						
+					
 						if (moviedb_movie.runtime != "N/A") {
 							var movie_runtime = Number(moviedb_movie.runtime.replace(" min", ""));
 							var movie_runtime_hours = Math.floor(movie_runtime / 60);
 							var movie_runtime_mins = movie_runtime % 60;
 							moviedb_movie.runtime = movie_runtime_hours + "h " + movie_runtime_mins + "m";
 						}
-						
+					
 						if (moviedb_movie.poster == "N/A") {
 							moviedb_movie.poster = "/images/movie_poster.png"
 						}
-						
+					
 						if (moviedb_movie.rated == "Not Rated") {
 							moviedb_movie.rated = "NR";
 						}
+						
+						$http.post('/movies', moviedb_movie).
+						success(function(data, status, headers, config) {
+							var tempMovies = $scope.movies;
+							tempMovies.push(data);
+							$scope.movies = tempMovies;
+						});
 					}
-					
-					jQuery.ajax({
-						url: './movies',
-						type: 'POST',
-						async: false,
-						data: moviedb_movie,
-						success: function(result) {
-							movies[i] = result;
-						}
-					});
 				}
-			});
+			})(i));
 		}
 		
-		console.log(movies);
-		reloadAllMovies();
+		$scope.generatedJSON = "";
 		$('#progress-modal').modal('hide');
 	};
 	
@@ -196,7 +185,7 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 	};
 	
 	function reloadAllMovies() {
-		$http.get('./movies').success(function(data) {
+		$http.get('/movies').success(function(data) {
 			$scope.movies = data;
 			
 			setTimeout( function() {
