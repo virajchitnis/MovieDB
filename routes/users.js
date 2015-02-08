@@ -246,4 +246,39 @@ router.post('/login', function(req, res, next) {
 	}
 });
 
+/* POST check if user is admin or not. */
+router.post('/admin', function(req, res, next) {
+	Login.findById(req.body.token, function (err, login) {
+		if (err) return next(err);
+	
+		if (login) {
+			User.findOne({ 'email': login.email }, function(err, user) {
+				if (err) return next(err);
+				
+				if (user) {
+					if (user.type && (user.type == 'admin')) {
+						returnData(true);
+					}
+					else {
+						returnData(false);
+					}
+				}
+				else {
+					returnData(false);
+				}
+			});
+		}
+		else {
+			returnData(false);
+		}
+	});
+	
+	function returnData(adminOrNot) {
+		var ret = {
+			admin: adminOrNot
+		};
+		res.json(ret);
+	}
+});
+
 module.exports = router;

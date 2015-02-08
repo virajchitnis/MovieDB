@@ -16,20 +16,29 @@ router.get('/', function(req, res) {
 			if (err) return next(err);
 			
 			if (login) {
-				AccessCode.findOne({ 'email': login.email }, function(err, accesscode) {
-					if (accesscode) {
-						if (accesscode.expires) {
-							var current_date = new Date();
-							if (current_date > accesscode.expires) {
-								return401();
+				User.findOne({ 'email': login.email }, function(err, user) {
+					if (err) return next(err);
+				
+					if (user) {
+						AccessCode.findOne({ 'email': login.email }, function(err, accesscode) {
+							if (accesscode) {
+								if (accesscode.expires) {
+									var current_date = new Date();
+									if (current_date > accesscode.expires) {
+										return401();
+									}
+									else {
+										returnPage();
+									}
+								}
+								else {
+									returnPage();
+								}
 							}
 							else {
-								returnPage();
+								return401();
 							}
-						}
-						else {
-							returnPage();
-						}
+						});
 					}
 					else {
 						return401();
@@ -62,20 +71,29 @@ router.get('/login', function(req, res) {
 			if (err) return next(err);
 			
 			if (login) {
-				AccessCode.findOne({ 'email': login.email }, function(err, accesscode) {
-					if (accesscode) {
-						if (accesscode.expires) {
-							var current_date = new Date();
-							if (current_date > accesscode.expires) {
-								returnLoginPage();
+				User.findOne({ 'email': login.email }, function(err, user) {
+					if (err) return next(err);
+				
+					if (user) {
+						AccessCode.findOne({ 'email': login.email }, function(err, accesscode) {
+							if (accesscode) {
+								if (accesscode.expires) {
+									var current_date = new Date();
+									if (current_date > accesscode.expires) {
+										returnLoginPage();
+									}
+									else {
+										returnIndexPage();
+									}
+								}
+								else {
+									returnIndexPage();
+								}
 							}
 							else {
-								returnIndexPage();
+								returnLoginPage();
 							}
-						}
-						else {
-							returnIndexPage();
-						}
+						});
 					}
 					else {
 						returnLoginPage();
