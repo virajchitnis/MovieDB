@@ -1,6 +1,6 @@
 var app = angular.module('app', ['socket.io']);
 app.config(['$socketProvider', function ($socketProvider) {
-	$socketProvider.setConnectionUrl('http://' + document.domain + ':3003');
+	$socketProvider.setConnectionUrl('http://' + document.domain + ':3001');
 	$socketProvider.setTryMultipleTransports(false);
 }]);
 app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scope, $http, $sce, $socket) {

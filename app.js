@@ -30,7 +30,7 @@ var server = http.createServer(app);
 var io = socketio.listen(server);
 app.set('socketio', io);
 app.set('server', server);
-app.get('server').listen(pjson.socket_port);
+app.get('server').listen(3001);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

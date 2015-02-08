@@ -1,6 +1,6 @@
 var app = angular.module('app', ['socket.io']);
 app.config(['$socketProvider', function ($socketProvider) {
-	$socketProvider.setConnectionUrl('http://' + document.domain + ':3003');
+	$socketProvider.setConnectionUrl('http://' + document.domain + ':3001');
 	$socketProvider.setTryMultipleTransports(false);
 }]);
 app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scope, $http, $sce, $socket) {
@@ -16,6 +16,7 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 		lazyLoadPosters();
 	});
 	
+	$scope.newMovies = new Array();
 	$scope.searchMoviesCriteria = "title";
 	$scope.generatedJSON = "[]";
 	$scope.form_quality = "1080p HD"
@@ -176,9 +177,25 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 			})(i));
 		}
 		
-		$scope.generatedJSON = "";
+		$scope.generatedJSON = "[]";
 		$('#progress-modal').modal('hide');
 	};
+	
+	$socket.on('movie.added', function (data) {
+		if ($scope.newMovies.length == 0) {
+			var tempMovies = $scope.movies;
+			tempMovies.push(data);
+			$scope.movies = tempMovies;
+		}
+	});
+	
+	$socket.on('movie.updated', function (data) {
+		if ($scope.newMovies.length == 0) {
+			var tempMovies = $scope.movies;
+			tempMovies.push(data);
+			$scope.movies = tempMovies;
+		}
+	});
 	
 	$scope.scrollToTop = function() {
 		$('html, body').animate({scrollTop: '0px'}, 1000);

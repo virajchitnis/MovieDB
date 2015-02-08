@@ -80,7 +80,7 @@ router.post('/', function(req, res, next) {
 				if(err){ return next(err); }
 				
 				var socketio = req.app.get('socketio');
-				socketio.sockets.emit('movies.modified', movie);
+				socketio.sockets.emit('movie.updated', updated_movie);
 				
 				res.json(updated_movie);
 			});
@@ -91,7 +91,7 @@ router.post('/', function(req, res, next) {
 				if(err){ return next(err); }
 				
 				var socketio = req.app.get('socketio');
-				socketio.sockets.emit('movies.modified', movie);
+				socketio.sockets.emit('movie.added', movie);
 				
 				res.json(movie);
 			});
