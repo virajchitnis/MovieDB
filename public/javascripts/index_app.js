@@ -111,28 +111,15 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 			movies = JSON.parse($scope.generatedJSON);
 		}
 		
-		$scope.progress_info = "Preparing..."
-		
 		$('#edit-modal').modal('hide');
-		$('#progress-modal').modal('show');
-		
-		$scope.progressbar_crumbs = 100 / (movies.length * 2);
-		$scope.progressbar_progress = 0;
-		
-		$scope.progressbar = {
-			width: '0%'
-		};
-		$scope.progressbar_text = "0%";
+		$('#progress-modal').modal({
+			backdrop: 'static',
+			keyboard: false,
+			show: true
+		});
 		
 		for (var i = 0; i < movies.length; i++) {
 			$scope.current_movie = movies[i];
-			$scope.progress_info = "Fetching metadata for " + $scope.current_movie.imdb_id + "...";
-			
-			$scope.progressbar_progress += $scope.progressbar_crumbs;
-			$scope.progressbar = {
-				width: $scope.progressbar_progress + '%'
-			};
-			$scope.progressbar_text = $scope.progressbar_progress + '%';
 			
 			jQuery.ajax({
 				url: 'http://www.omdbapi.com/?i=' + $scope.current_movie.imdb_id + '&plot=full',
@@ -170,17 +157,20 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 							filename: $scope.current_movie.filename
 						};
 						
-						var movie_runtime = Number(moviedb_movie.runtime.replace(" min", ""));
-						var movie_runtime_hours = Math.floor(movie_runtime / 60);
-						var movie_runtime_mins = movie_runtime % 60;
+						if (moviedb_movie.runtime != "N/A") {
+							var movie_runtime = Number(moviedb_movie.runtime.replace(" min", ""));
+							var movie_runtime_hours = Math.floor(movie_runtime / 60);
+							var movie_runtime_mins = movie_runtime % 60;
+							moviedb_movie.runtime = movie_runtime_hours + "h " + movie_runtime_mins + "m";
+						}
 						
-						moviedb_movie.runtime = movie_runtime_hours + "h " + movie_runtime_mins + "m";
+						if (moviedb_movie.poster == "N/A") {
+							moviedb_movie.poster = "/images/movie_poster.png"
+						}
 						
 						if (moviedb_movie.rated == "Not Rated") {
 							moviedb_movie.rated = "NR";
 						}
-						
-						$scope.progress_info = "Inserting " + moviedb_movie.title + " into the database...";
 					}
 					
 					jQuery.ajax({
@@ -189,12 +179,6 @@ app.controller('MainCtrl', ['$scope', '$http', '$sce', '$socket', function($scop
 						async: false,
 						data: moviedb_movie,
 						success: function(result) {
-							$scope.progressbar_progress += $scope.progressbar_crumbs;
-							$scope.progressbar = {
-								width: $scope.progressbar_progress + '%'
-							};
-							$scope.progressbar_text = $scope.progressbar_progress + '%';
-							
 							movies[i] = result;
 						}
 					});
